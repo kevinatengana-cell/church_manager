@@ -1,0 +1,35 @@
+name: metrique_local
+description: Application de suivi de métriques personnalisables (locale)
+
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  sqflite: ^2.3.0
+  path: ^1.8.3
+  fl_chart: ^0.68.0
+  intl: ^0.19.0
+  sqflite_common_ffi: any
+  file_picker: ^8.1.7
+  sqlite3_flutter_libs: ^0.6.0+eol
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/logo.png
+
+flutter_launcher_icons:
+  ios: true
+  image_path: "assets/logo.png"
