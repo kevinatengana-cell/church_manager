@@ -17,7 +17,7 @@ class _NouvellesSortieScreenState extends State<NouvellesSortieScreen> {
   DateTime _date = DateTime.now();
   bool _saving = false;
 
-  // Évangélisateurs : liste de contrôleurs de texte
+  // Évangélistes : liste de contrôleurs de texte
   final List<TextEditingController> _evCtrlList = [];
 
   // Personnes touchées : liste de {nom, contact}
@@ -57,8 +57,7 @@ class _NouvellesSortieScreenState extends State<NouvellesSortieScreen> {
     super.dispose();
   }
 
-  void _addEv() =>
-      setState(() => _evCtrlList.add(TextEditingController()));
+  void _addEv() => setState(() => _evCtrlList.add(TextEditingController()));
 
   void _removeEv(int i) {
     _evCtrlList[i].dispose();
@@ -169,7 +168,8 @@ class _NouvellesSortieScreenState extends State<NouvellesSortieScreen> {
                       style: const TextStyle(
                           color: AppTheme.textPrimary, fontSize: 15)),
                   const Spacer(),
-                  const Icon(Icons.edit, size: 16, color: AppTheme.textSecondary),
+                  const Icon(Icons.edit,
+                      size: 16, color: AppTheme.textSecondary),
                 ]),
               ),
             ),
@@ -193,11 +193,11 @@ class _NouvellesSortieScreenState extends State<NouvellesSortieScreen> {
 
             const SizedBox(height: 28),
 
-            // ── Évangélisateurs ───────────────────────────────────────────
+            // ── Évangélistes ───────────────────────────────────────────
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _SectionLabel('Évangélisateurs (${_evCtrlList.length})'),
+                _SectionLabel('Évangélistes (${_evCtrlList.length})'),
                 TextButton.icon(
                   onPressed: _addEv,
                   icon: const Icon(Icons.add, size: 16),
@@ -234,13 +234,13 @@ class _NouvellesSortieScreenState extends State<NouvellesSortieScreen> {
                             horizontal: 14, vertical: 12),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                              color: AppTheme.teal.withOpacity(0.4)),
+                          borderSide:
+                              BorderSide(color: AppTheme.teal.withOpacity(0.4)),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                              color: AppTheme.teal.withOpacity(0.3)),
+                          borderSide:
+                              BorderSide(color: AppTheme.teal.withOpacity(0.3)),
                         ),
                       ),
                     ),
@@ -282,8 +282,8 @@ class _NouvellesSortieScreenState extends State<NouvellesSortieScreen> {
                 decoration: BoxDecoration(
                   color: AppTheme.secondary.withOpacity(0.05),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                      color: AppTheme.secondary.withOpacity(0.25)),
+                  border:
+                      Border.all(color: AppTheme.secondary.withOpacity(0.25)),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -364,7 +364,8 @@ class _NouvellesSortieScreenState extends State<NouvellesSortieScreen> {
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white))
                     : const Icon(Icons.save_rounded),
-                label: Text(_isEdit ? 'Mettre à jour' : 'Enregistrer la sortie'),
+                label:
+                    Text(_isEdit ? 'Mettre à jour' : 'Enregistrer la sortie'),
               ),
             ),
             const SizedBox(height: 30),
@@ -403,8 +404,7 @@ class _HintBox extends StatelessWidget {
             Border.all(color: color.withOpacity(0.2), style: BorderStyle.solid),
       ),
       child: Text(text,
-          style:
-              TextStyle(color: color.withOpacity(0.6), fontSize: 13)),
+          style: TextStyle(color: color.withOpacity(0.6), fontSize: 13)),
     );
   }
 }

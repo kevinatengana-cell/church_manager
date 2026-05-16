@@ -3,6 +3,8 @@ class Sortie {
   final DateTime date;
   final String lieu;
   final String? notes;
+  final bool isImported;
+  final String? senderName;
   List<Evangelisateur> evangelisateurs;
   List<PersonneTouchee> personnesTouchees;
 
@@ -11,6 +13,8 @@ class Sortie {
     required this.date,
     required this.lieu,
     this.notes,
+    this.isImported = false,
+    this.senderName,
     this.evangelisateurs = const [],
     this.personnesTouchees = const [],
   });
@@ -19,6 +23,8 @@ class Sortie {
         'date': date.toIso8601String(),
         'lieu': lieu,
         'notes': notes,
+        'is_imported': isImported ? 1 : 0,
+        'sender_name': senderName,
       };
 
   factory Sortie.fromMap(Map<String, dynamic> map) => Sortie(
@@ -26,6 +32,8 @@ class Sortie {
         date: DateTime.parse(map['date']),
         lieu: map['lieu'],
         notes: map['notes'],
+        isImported: (map['is_imported'] ?? 0) == 1,
+        senderName: map['sender_name'],
       );
 }
 

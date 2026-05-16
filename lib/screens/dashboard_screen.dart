@@ -4,6 +4,7 @@ import '../theme/app_theme.dart';
 import '../models/sortie.dart';
 import 'sortie_detail_screen.dart';
 import 'nouvelle_sortie_screen.dart';
+import 'profile_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -19,11 +20,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final totalSorties = await _db.countSorties();
     final totalTouches = await _db.countPersonnesTouchees();
     final totalEvUniques = await _db.countEvangelisateursUniques();
+    final ownerName = await _db.getOwnerName();
     return {
       'sorties': totalSorties,
       'touches': totalTouches,
       'evUniques': totalEvUniques,
       'recent': sorties.take(3).toList(),
+      'ownerName': ownerName,
     };
   }
 
@@ -37,7 +40,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           builder: (ctx, snap) {
             return CustomScrollView(
               slivers: [
-                _buildAppBar(),
+                _buildAppBar(snap.data?['ownerName'] as String?),
                 if (!snap.hasData)
                   const SliverFillRemaining(
                       child: Center(child: CircularProgressIndicator()))
@@ -73,10 +76,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  SliverAppBar _buildAppBar() {
+  SliverAppBar _buildAppBar(String? ownerName) {
     return SliverAppBar(
       expandedHeight: 130,
       pinned: true,
+      actions: [
+        InkWell(
+          onTap: () async {
+            await Navigator.push(
+                context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
+            setState(() {});
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                if (ownerName != null && ownerName.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Text(ownerName,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14)),
+                  ),
+                const Icon(Icons.account_circle, color: Colors.white, size: 28),
+              ],
+            ),
+          ),
+        ),
+      ],
       flexibleSpace: FlexibleSpaceBar(
         title: const Text('Évangélisation MINSARES',
             style: TextStyle(
@@ -266,7 +295,7 @@ class _SortieCard extends StatelessWidget {
                 color: AppTheme.primary.withOpacity(0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.church, color: AppTheme.primary),
+              child: const Icon(Icons.location_on, color: AppTheme.primary),
             ),
             const SizedBox(width: 14),
             Expanded(

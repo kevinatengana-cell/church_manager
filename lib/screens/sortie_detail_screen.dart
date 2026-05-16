@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../services/database_service.dart';
+import '../services/export_service.dart';
 import '../theme/app_theme.dart';
 import '../models/sortie.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'nouvelle_sortie_screen.dart';
 
 class SortieDetailScreen extends StatefulWidget {
@@ -13,7 +15,9 @@ class SortieDetailScreen extends StatefulWidget {
 
 class _SortieDetailScreenState extends State<SortieDetailScreen> {
   final _db = DatabaseService();
+  final _export = ExportService();
   late Sortie _sortie;
+  bool _exporting = false;
 
   @override
   void initState() {
@@ -26,6 +30,22 @@ class _SortieDetailScreenState extends State<SortieDetailScreen> {
     if (s != null && mounted) setState(() => _sortie = s);
   }
 
+  Future<void> _partager() async {
+    setState(() => _exporting = true);
+    try {
+      await _export.exporterSortie(_sortie);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Erreur export : $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _exporting = false);
+    }
+  }
+
   Future<void> _delete() async {
     final ok = await showDialog<bool>(
       context: context,
@@ -33,15 +53,15 @@ class _SortieDetailScreenState extends State<SortieDetailScreen> {
         backgroundColor: AppTheme.card,
         title: const Text('Supprimer cette sortie ?'),
         content: const Text(
-            'Tous les évangélisateurs et personnes touchées seront supprimés.'),
+            'Tous les Évangélistes et personnes touchées seront supprimés.'),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(ctx, false),
               child: const Text('Annuler')),
           TextButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Supprimer',
-                  style: TextStyle(color: Colors.red))),
+              child:
+                  const Text('Supprimer', style: TextStyle(color: Colors.red))),
         ],
       ),
     );
@@ -61,14 +81,29 @@ class _SortieDetailScreenState extends State<SortieDetailScreen> {
       appBar: AppBar(
         title: Text(_sortie.lieu),
         actions: [
+          // Bouton partage
+          _exporting
+              ? const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: Colors.white),
+                  ),
+                )
+              : IconButton(
+                  icon: const Icon(Icons.share_rounded),
+                  tooltip: 'Partager ce rapport',
+                  onPressed: _partager,
+                ),
           IconButton(
             icon: const Icon(Icons.edit_rounded),
             onPressed: () async {
               await Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (_) =>
-                          NouvellesSortieScreen(sortie: _sortie)));
+                      builder: (_) => NouvellesSortieScreen(sortie: _sortie)));
               await _reload();
             },
           ),
@@ -131,7 +166,7 @@ class _SortieDetailScreenState extends State<SortieDetailScreen> {
               children: [
                 Expanded(
                   child: _SummaryBox(
-                    label: 'Évangélisateurs',
+                    label: 'Évangélistes',
                     count: _sortie.evangelisateurs.length,
                     color: AppTheme.teal,
                     icon: Icons.group_rounded,
@@ -151,8 +186,7 @@ class _SortieDetailScreenState extends State<SortieDetailScreen> {
             const SizedBox(height: 24),
 
             // Evangelisateurs list
-            _SectionHeader(
-                'Évangélisateurs', AppTheme.teal, Icons.group_rounded),
+            _SectionHeader('Évangélisates', AppTheme.teal, Icons.group_rounded),
             const SizedBox(height: 10),
             if (_sortie.evangelisateurs.isEmpty)
               _EmptyBox('Aucun évangélisateur enregistré')
@@ -164,8 +198,8 @@ class _SortieDetailScreenState extends State<SortieDetailScreen> {
             const SizedBox(height: 24),
 
             // Personnes touchées list
-            _SectionHeader(
-                'Personnes touchées', AppTheme.secondary, Icons.favorite_rounded),
+            _SectionHeader('Personnes touchées', AppTheme.secondary,
+                Icons.favorite_rounded),
             const SizedBox(height: 10),
             if (_sortie.personnesTouchees.isEmpty)
               _EmptyBox('Aucune personne touchée enregistrée')
@@ -194,9 +228,7 @@ class _SectionHeader extends StatelessWidget {
       const SizedBox(width: 8),
       Text(title,
           style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: color)),
+              fontSize: 16, fontWeight: FontWeight.bold, color: color)),
     ]);
   }
 }
@@ -267,9 +299,22 @@ class _PersonTile extends StatelessWidget {
                   style: const TextStyle(
                       fontWeight: FontWeight.w500, fontSize: 14)),
               if (contact != null && contact!.isNotEmpty)
-                Text(contact!,
+                GestureDetector(
+                  onTap: () async {
+                    final Uri url = Uri.parse('tel:$contact');
+                    if (await canLaunchUrl(url)) {
+                      await launchUrl(url);
+                    }
+                  },
+                  child: Text(
+                    contact!,
                     style: const TextStyle(
-                        fontSize: 12, color: AppTheme.textSecondary)),
+                      fontSize: 12,
+                      color: AppTheme.primary,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -291,8 +336,7 @@ class _EmptyBox extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppTheme.border),
       ),
-      child:
-          Text(text, style: const TextStyle(color: AppTheme.textSecondary)),
+      child: Text(text, style: const TextStyle(color: AppTheme.textSecondary)),
     );
   }
 }
